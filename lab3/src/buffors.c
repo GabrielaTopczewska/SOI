@@ -1,7 +1,7 @@
 #include "buffors.h"
 
-int get_size(struct buffor* b) { return b->size; }
-const char* get_name(int id)
+int get_buf_size(struct buffor* b) { return b->size; }
+const char* get_buf_name(int id)
 {
     if(id == BUF1) return "first buffor";
     else if (id == BUF2) return "second buffor";

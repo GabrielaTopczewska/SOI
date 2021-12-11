@@ -1,23 +1,29 @@
 #include "sem.h"
+#include <fcntl.h>
+#include <stdio.h>
+#include <errno.h>
 
+bool open_mutex(struct sem* s, sem_t* semap, const char* name, int index)
+{
+    semap = sem_open(name, O_CREAT | O_EXCL, 0777, 1);
+    printf("czy sie zrobilo?\n");
+    if(semap == SEM_FAILED){ printf("no nie\n"); perror(errno); return false;}
+    else
+    {
+        s->mutexes[index] = semap;
+        return true;
+    }
+}
 
-bool open_mutex(struct sem* s, set_t* semap, const char* name, int index)
+bool open_empty(struct sem* s, sem_t* semap, const char* name, int index)
 {
     semap = sem_open(name, O_CREAT | O_EXCL);
-    if(semap != SEM_FAILED) s->mutexes[index] = semap;
+    if(semap != SEM_FAILED) s->emptys[index] = semap;
     else return false;
     return true;
 }
 
-bool open_empty(struct sem* s, set_t* semap, const char* name, int index)
-{
-    semap = sem_open(name, O_CREAT | O_EXCL);
-    if(semap != SEM_FAILED) s->empty[index] = semap;
-    else return false;
-    return true;
-}
-
-bool open_full(struct sem* s, set_t* semap, const char* name, int index)
+bool open_full(struct sem* s, sem_t* semap, const char* name, int index)
 {
     semap = sem_open(name, O_CREAT | O_EXCL);
     if(semap != SEM_FAILED) s->fulls[index] = semap;
@@ -25,11 +31,13 @@ bool open_full(struct sem* s, set_t* semap, const char* name, int index)
     return true;
 }
 
-bool open(struct sem* s)
+bool open_all(struct sem* s)
 {
     sem_t* semap;
 
     if(open_mutex(s, semap, "mutex1", 0) == false) return false;
+    printf("1\n");
+
     if(open_mutex(s, semap, "mutex2", 1) == false) return false;
     if(open_mutex(s, semap, "mutex3", 2) == false) return false;
 
@@ -44,7 +52,7 @@ bool open(struct sem* s)
     return true;        // all semaphores initialized and opened and in sem s
 }
 
-void close(struct sem* s)
+void close_all(struct sem* s)
 {
     sem_unlink("mutex1");
     sem_unlink("mutex2");

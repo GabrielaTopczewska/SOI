@@ -8,8 +8,9 @@
 
 int main()
 {
-    sem* semap;
-    if(open(semap) == false)
+    struct sem* s;
+
+    if(open_all(s) == false)
     {
         printf("dupa");
         return 1;
@@ -17,7 +18,7 @@ int main()
 
     //
 
-    close(semap);
+    close_all(s);
     printf("niedupa");
     return 0;
 }

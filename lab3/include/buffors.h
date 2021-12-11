@@ -10,8 +10,8 @@ struct buffor
     int size;
 };
 
-int get_size(struct buffor* b);
-const char* get_name(int id);
+int get_buf_size(struct buffor* b);
+const char* get_buf_name(int id);
 
 void init(struct buffor* b, int* mem);
 int push(struct buffor* b, int value);
