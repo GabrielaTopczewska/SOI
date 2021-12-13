@@ -1,6 +1,3 @@
-#include <cstdio>
-#include <queue>
-
 #include <stdio.h>
 #include <errno.h>
 #include <stdlib.h>
@@ -9,7 +6,6 @@
 #include <time.h>
 #include <stdbool.h>
 #include <fcntl.h>
-#include <stdarg.h>
 #include <unistd.h>
 
 #include <sys/types.h>
@@ -162,6 +158,11 @@ void konsument_work(struct dane_procesow* dane, int typ)
 
 int main()
 {
+    if(QUEUE_MAX_SIZE <= 0)
+    {
+        printf("Queue size initialized to wrong value (0 or less).\n");
+        return 0;
+    }
     printf("START main().\n\n");
 
     int mpid = getpid();        // pid maina
