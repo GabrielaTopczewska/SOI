@@ -61,7 +61,7 @@ void producent_work(struct dane_procesow *dane, int typ)
                 do_work = &do_work2;    // wskaznik na adres do work2 (miesz)
             }
 
-
+            // sem_wait(emp);
             sem_wait(sem);
             printf("... producent [%d] pracuje z kolejka '%c' [pid = %d]\n", typ, qtyp, getpid());
             if (qq->idx == -1) qq->idx = 0;     // poczatek pracy z kolejka
@@ -84,6 +84,7 @@ void producent_work(struct dane_procesow *dane, int typ)
                 break;
             }
             sem_post(sem);
+            // sem_post(full);
 
             usleep(1000 * 300 * typ);
         }
@@ -127,6 +128,7 @@ void konsument_work(struct dane_procesow* dane, int typ)
     bool exists = true;
     while (exists)
     {
+        // sem_wait(full);
         sem_wait(sem);
         if (qq->idx > 0)        // bo jak producent wstawil to zwiekszyl na 1
         {
@@ -146,6 +148,7 @@ void konsument_work(struct dane_procesow* dane, int typ)
             exists = false;
         }
         sem_post(sem);
+        // sem_post(emp);
 
         usleep(1000 * 1000 * typ);
     }
