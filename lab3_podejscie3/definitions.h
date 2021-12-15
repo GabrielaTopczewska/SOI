@@ -1,7 +1,7 @@
 #ifndef DEF_H
 #define DEF_H
 
-#define QUEUE_MAX_SIZE 3
+#define QUEUE_MAX_SIZE 10
 
 #define QUEUE_ODD_NUMBER "MMGA_queue_odd_numbers"
 #define QUEUE_EVEN_NUMBER "MMGA_queue_even_numbers"

@@ -15,7 +15,7 @@
 #include <sys/wait.h>
 
 #include "definitions.h"
-
+#include "prod.h"
 
 struct kolejka {
     int idx;                //gdzie wstawic
@@ -83,7 +83,12 @@ void producent_work(struct dane_procesow *dane, int typ)
             if (qq->idx == -1) qq->idx = 0;     // poczatek pracy z kolejka
             if (qq->idx < QUEUE_MAX_SIZE)
             {
-                qq->arr[qq->idx] = typ;         // tu dorobic rand
+                if(typ == 1){
+                    qq->arr[qq->idx] = producer_a();         // tu dorobic rand
+                }
+                else{
+                    qq->arr[qq->idx] = producer_b();
+                }
                 printf("... producent [%d]: Arr[%d] = %d\n", typ, qq->idx, qq->arr[qq->idx]);
                 qq->idx++;
             }
