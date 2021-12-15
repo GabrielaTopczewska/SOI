@@ -10,5 +10,11 @@
 #define SEM_ODD_NUMBER "MMGA_sem_odd_numbers"
 #define SEM_EVEN_NUMBER "MMGA_sem_even_numbers"
 #define SEM_MIXED_NUMBER "MMGA_sem_mixed_numbers"
+#define SEM_ODD_EMP "MMGA_sem_odd_emp"
+#define SEM_EVEN_EMP "MMGA_sem_even_emp"
+#define SEM_MIXED_EMP "MMGA_sem_mixed_emp"
+#define SEM_ODD_FULL "MMGA_sem_odd_full"
+#define SEM_EVEN_FULL "MMGA_sem_even_full"
+#define SEM_MIXED_FULL "MMGA_sem_mixed_full"
 
 #endif

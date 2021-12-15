@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <stdlib.h>
-#include <semaphore.h>
+// #include <semaphore.h>
 #include <pthread.h>
 #include <time.h>
 #include <stdbool.h>
@@ -14,28 +14,10 @@
 #include <sys/mman.h>
 #include <sys/wait.h>
 
-#include "definitions.h"
+#include "sem.h"
 #include "prod.h"
 
-struct kolejka {
-    int idx;                //gdzie wstawic
-    int arr[QUEUE_MAX_SIZE];
-};
 
-struct dane_procesow
-{
-    int shm_odd_desc;
-    kolejka *q_odd;
-    sem_t* sem_odd;
-
-    int shm_even_desc;
-    kolejka *q_even;
-    sem_t* sem_even;
-
-    int shm_mixed_desc;
-    kolejka *q_mixed;
-    sem_t* sem_mixed;
-};
 
 void producent_work(struct dane_procesow *dane, int typ)
 {
@@ -47,6 +29,8 @@ void producent_work(struct dane_procesow *dane, int typ)
     char qtyp = '0';
     kolejka* qq = NULL;
     sem_t* sem = NULL;
+    sem_t* emp = NULL;
+    sem_t* full = NULL;
 
     while (do_work1 || do_work2)
     {
@@ -58,6 +42,8 @@ void producent_work(struct dane_procesow *dane, int typ)
                 {
                     qq = dane->q_odd;
                     sem = dane->sem_odd;
+                    emp = dane->odd_emp;
+                    full = dane->odd_full;
                     qtyp = 'O';
                 }
 
@@ -65,6 +51,8 @@ void producent_work(struct dane_procesow *dane, int typ)
                 {
                     qq = dane->q_even;
                     sem = dane->sem_even;
+                    emp = dane->even_emp;
+                    full = dane->even_full;
                     qtyp = 'E';
                 }
                 do_work = &do_work1;    // wskaznik na adres do_work1 (parz lub nieparz)
@@ -73,6 +61,8 @@ void producent_work(struct dane_procesow *dane, int typ)
             {
                 qq = dane->q_mixed;
                 sem = dane->sem_mixed;
+                emp = dane->mix_emp;
+                full = dane->mix_full;
                 qtyp = 'M';
                 do_work = &do_work2;    // wskaznik na adres do work2 (miesz)
             }
@@ -113,23 +103,31 @@ void konsument_work(struct dane_procesow* dane, int typ)
     printf("Konsument [%d] rozpoczal prace [pid = %d]\n", typ, getpid());
     kolejka* qq = NULL;
     sem_t* sem = NULL;
+    sem_t* emp = NULL;
+    sem_t* full = NULL;
 
     if (typ == 1)
     {
         qq = dane->q_odd;
         sem = dane->sem_odd;
+        emp = dane->odd_emp;
+        full = dane->odd_full;
     }
 
     if (typ == 2)
     {
         qq = dane->q_even;
         sem = dane->sem_even;
+        emp = dane->even_emp;
+        full = dane->even_full;
     }
 
     if (typ == 3)
     {
         qq = dane->q_mixed;
         sem = dane->sem_mixed;
+        emp = dane->mix_emp;
+        full = dane->mix_full;
     }
 
     bool exists = true;
@@ -172,6 +170,8 @@ int main()
 
     int mpid = getpid();        // pid maina
     struct dane_procesow dane;  //tu trzymam dane potrzebne w trakcie dzialania procesow
+
+    //initialize_semaphores(dane);
 
     //tworzenie semaforow
     {
@@ -222,6 +222,104 @@ int main()
             printf("Semafor 'SEM_MIXED_NUMBER' utworzony.\n");
             dane.sem_mixed = res_sem;
         }
+
+        // odd emp
+        sem_unlink(SEM_ODD_EMP);
+        sem_close(dane.odd_emp);
+
+        res_sem = sem_open(SEM_ODD_EMP, O_CREAT | O_EXCL, 0666, 1);
+        if (res_sem == SEM_FAILED)
+        {
+            perror("Blad przy tworzeniu semafora 'SEM_ODD_EMP'");
+            exit(EXIT_FAILURE);
+        }
+        else
+        {
+            printf("Semafor 'SEM_ODD_EMP' utworzony.\n");
+            dane.odd_emp = res_sem;
+        }
+
+        // even emp
+        sem_unlink(SEM_EVEN_EMP);
+        sem_close(dane.even_emp);
+
+        res_sem = sem_open(SEM_EVEN_EMP, O_CREAT | O_EXCL, 0666, 1);
+        if (res_sem == SEM_FAILED)
+        {
+            perror("Blad przy tworzeniu semafora 'SEM_EVEN_EMP'");
+            exit(EXIT_FAILURE);
+        }
+        else
+        {
+            printf("Semafor 'SEM_EVEN_EMP' utworzony.\n");
+            dane.odd_emp = res_sem;
+        }
+
+        // mix emp
+        sem_unlink(SEM_MIXED_EMP);
+        sem_close(dane.mix_emp);
+
+        res_sem = sem_open(SEM_MIXED_EMP, O_CREAT | O_EXCL, 0666, 1);
+        if (res_sem == SEM_FAILED)
+        {
+            perror("Blad przy tworzeniu semafora 'SEM_MIXED_EMP'");
+            exit(EXIT_FAILURE);
+        }
+        else
+        {
+            printf("Semafor 'SEM_MIXED_EMP' utworzony.\n");
+            dane.mix_emp = res_sem;
+        }
+
+        // odd full
+        sem_unlink(SEM_ODD_FULL);
+        sem_close(dane.odd_full);
+
+        res_sem = sem_open(SEM_ODD_FULL, O_CREAT | O_EXCL, 0666, 1);
+        if (res_sem == SEM_FAILED)
+        {
+            perror("Blad przy tworzeniu semafora 'SEM_ODD_FULL'");
+            exit(EXIT_FAILURE);
+        }
+        else
+        {
+            printf("Semafor 'SEM_ODD_FULL' utworzony.\n");
+            dane.odd_full = res_sem;
+        }
+
+
+            // even full
+        sem_unlink(SEM_EVEN_FULL);
+        sem_close(dane.even_full);
+
+        res_sem = sem_open(SEM_EVEN_FULL, O_CREAT | O_EXCL, 0666, 1);
+        if (res_sem == SEM_FAILED)
+        {
+            perror("Blad przy tworzeniu semafora 'SEM_EVEN_FULL'");
+            exit(EXIT_FAILURE);
+        }
+        else
+        {
+            printf("Semafor 'SEM_EVEN_FULL' utworzony.\n");
+            dane.even_full = res_sem;
+        }
+
+            // mix full
+        sem_unlink(SEM_MIXED_FULL);
+        sem_close(dane.mix_full);
+
+        res_sem = sem_open(SEM_MIXED_FULL, O_CREAT | O_EXCL, 0666, 1);
+        if (res_sem == SEM_FAILED)
+        {
+            perror("Blad przy tworzeniu semafora 'SEM_MIXED_FULL'");
+            exit(EXIT_FAILURE);
+        }
+        else
+        {
+            printf("Semafor 'SEM_MIXED_FULL' utworzony.\n");
+            dane.mix_full = res_sem;
+        }
+
     }
 
     //tworzenie pamieci wspoldzielonej i mapowanie
