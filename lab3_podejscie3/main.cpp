@@ -1,11 +1,5 @@
-#include <pthread.h>
-#include <time.h>
 #include <stdbool.h>
 #include <unistd.h>
-
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/shm.h>
 #include <sys/mman.h>
 #include <sys/wait.h>
 
@@ -381,21 +375,16 @@ int main()
         }
         printf("\nCzyszcze zasoby...\n");
 
-        //czyszcze zasoby
+        //czyszczenie zasobow
         munmap(dane.q_odd, sizeof(kolejka));
-        shm_unlink(QUEUE_ODD_NUMBER);
-        sem_unlink(SEM_ODD_NUMBER);
-        sem_close(dane.sem_odd);
-
         munmap(dane.q_even, sizeof(kolejka));
-        shm_unlink(QUEUE_EVEN_NUMBER);
-        sem_unlink(SEM_EVEN_NUMBER);
-        sem_close(dane.sem_even);
-
         munmap(dane.q_mixed, sizeof(kolejka));
+
+        shm_unlink(QUEUE_ODD_NUMBER);
+        shm_unlink(QUEUE_EVEN_NUMBER);
         shm_unlink(QUEUE_MIXED_NUMBER);
-        sem_unlink(SEM_MIXED_NUMBER);
-        sem_close(dane.sem_mixed);
+
+        close_semaphores(&dane);
 
         printf("END main().\n");
     }

@@ -8,5 +8,6 @@
 #include "structs.h"
 
 void initialize_semaphores(dane_procesow *dane);
+void close_semaphores(dane_procesow *dane);
 
 #endif

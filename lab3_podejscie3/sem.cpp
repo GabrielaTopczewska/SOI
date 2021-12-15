@@ -148,3 +148,27 @@ void initialize_semaphores(dane_procesow *dane)
         }
 
     }
+
+void close_semaphores(dane_procesow *dane)
+{
+        sem_unlink(SEM_ODD_NUMBER);
+        sem_close(dane->sem_odd);
+        sem_unlink(SEM_ODD_EMP);
+        sem_close(dane->odd_emp);
+        sem_unlink(SEM_ODD_FULL);
+        sem_close(dane->odd_full);
+
+        sem_unlink(SEM_EVEN_NUMBER);
+        sem_close(dane->sem_even);
+        sem_unlink(SEM_EVEN_EMP);
+        sem_close(dane->even_emp);
+        sem_unlink(SEM_EVEN_FULL);
+        sem_close(dane->even_full);
+
+        sem_unlink(SEM_MIXED_NUMBER);
+        sem_close(dane->sem_mixed);
+        sem_unlink(SEM_MIXED_EMP);
+        sem_close(dane->mix_emp);
+        sem_unlink(SEM_MIXED_FULL);
+        sem_close(dane->mix_full);
+}
