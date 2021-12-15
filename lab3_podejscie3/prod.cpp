@@ -1,6 +1,5 @@
 #include "prod.h"
-#include "definitions.h"
-#include <stdlib.h>
+// #include "definitions.h"
 
 int producer_a(void)
 {
