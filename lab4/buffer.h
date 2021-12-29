@@ -3,13 +3,13 @@
 
 #define N 10
 
-#include <monitor.h>
+#include "monitor.h"
 #include <queue>
 
 class Buffer : public Monitor
 {
     public:
-    Buffer();
+    Buffer(int name_);
     void produce(int value);
     void consume();
 
@@ -18,7 +18,7 @@ class Buffer : public Monitor
     Condition full;
     Condition empty;
     int count;
-    int value;
+    int name;
 };
 
 #endif
