@@ -20,120 +20,115 @@
 
 class Semaphore
 {
-public:
+	private:
+	/* #region   */
+	#ifdef _WIN32
+		HANDLE sem;
+	#else
+		sem_t sem;
+	#endif
+	/* #endregion */
 
-  Semaphore( int value )
-  {
-#ifdef _WIN32
-	sem = CreateSemaphore( NULL, value, 1, NULL );
-#else
-     if( sem_init( & sem, 0, value ) != 0 )
-       throw "sem_init: failed";
-#endif
-  }
-  ~Semaphore()
-  {
-#ifdef _WIN32
-	CloseHandle( sem );
-#else
-	  sem_destroy( & sem );
-#endif
-  }
+	public:
+	Semaphore(int value){
+		#ifdef _WIN32
+			sem = CreateSemaphore(NULL, value, 1, NULL);
+		#else
+			if (sem_init(&sem, 0, value) != 0)
+				throw "sem_init: failed";
+		#endif
+	}
 
-  void p()
-  {
-#ifdef _WIN32
-	  WaitForSingleObject( sem, INFINITE );
-#else
-     if( sem_wait( & sem ) != 0 )
-       throw "sem_wait: failed";
-#endif
-  }
+	~Semaphore(){
+		#ifdef _WIN32
+			CloseHandle(sem);
+		#else
+			sem_destroy(&sem);
+		#endif
+	}
 
-  void v()
-  {
-#ifdef _WIN32
-	  ReleaseSemaphore( sem, 1, NULL );
-#else
-     if( sem_post( & sem ) != 0 )
-       throw "sem_post: failed";
-#endif
-  }
+	void p(){
+		#ifdef _WIN32
+			WaitForSingleObject(sem, INFINITE);
+		#else
+			if (sem_wait(&sem) != 0)
+				throw "sem_wait: failed";
+		#endif
+	}
 
-
-private:
-
-#ifdef _WIN32
-	HANDLE sem;
-#else
-	sem_t sem;
-#endif
+	void v(){
+		#ifdef _WIN32
+			ReleaseSemaphore(sem, 1, NULL);
+		#else
+			if (sem_post(&sem) != 0)
+				throw "sem_post: failed";
+		#endif
+	}
 };
 
 class Condition
 {
-  friend class Monitor;
+	/* #region   */
+	friend class Monitor;
 
-public:
-	Condition() : w( 0 )
+	private:
+	Semaphore w;
+	int waitingCount; //liczba oczekujacych watkow
+	/* #endregion */
+
+	public:
+
+	Condition() : w(0)
 	{
 		waitingCount = 0;
 	}
 
-	void wait()
-	{
+	void wait(){
 		w.p();
 	}
 
 	bool signal()
 	{
-		if( waitingCount )
+		if (waitingCount)
 		{
-			-- waitingCount;
+			--waitingCount;
 			w.v();
 			return true;
-		}//if
+		} //if
 		else
 			return false;
 	}
-
-private:
-	Semaphore w;
-	int waitingCount; //liczba oczekujacych watkow
 };
-
 
 class Monitor
 {
-public:
-	Monitor() : s( 1 ) {}
+	private:
+	Semaphore s;
 
-	void enter()
-	{
+	public:
+
+	Monitor() : s(1) {}
+
+	void enter(){
 		s.p();
 	}
 
-	void leave()
-	{
+	void leave(){
 		s.v();
 	}
 
-	void wait( Condition & cond )
+	void wait(Condition &cond)
 	{
-		++ cond.waitingCount;
+		++cond.waitingCount;
 		leave();
 		cond.wait();
 	}
 
-	void signal( Condition & cond )
+	void signal(Condition &cond)
 	{
-		if( cond.signal() )
+		if (cond.signal())
 			enter();
 	}
-
-
-private:
-	Semaphore s;
 };
 
 #endif
