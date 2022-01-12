@@ -1,8 +1,8 @@
 # SOI - Lab 6 - System plików - Koncepcja wykonania
 
-Imię i nazwisko: *Gabriela Topczewska*
-Nr indeksu: *310961*
-Grupa: *środa, 8:15-10:00*
+Imię i nazwisko: *Gabriela Topczewska*  
+Nr indeksu: *310961*  
+Grupa: *środa, 8:15-10:00*  
 
 ## Cel laboratorium
 
